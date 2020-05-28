@@ -31,7 +31,8 @@ import logging
 import os
 import numpy as np
 from PIL import Image
-
+import cv2
+from tqdm import tqdm
 
 #from object_detection.utils import dataset_util
 #from object_detection.utils import label_map_util
@@ -60,7 +61,7 @@ img_path = '/media/jake/mark-4tb3/input/datasets/pascal/VOCtrainval_11-May-2012/
 voc_labels = ('aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat', 'chair', 'cow', 'diningtable',
               'dog', 'horse', 'motorbike', 'person', 'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor')
 label_map = {k: v + 1 for v, k in enumerate(voc_labels)}
-
+ifprint = False
 def parse_annotation(annotation_path):
     tree = ET.parse(annotation_path)
     root = tree.getroot()
@@ -91,39 +92,49 @@ def parse_annotation(annotation_path):
 
     return {'filename': filename,'boxes': boxes, 'labels': labels, 'difficulties': difficulties}
 
-def main():
+def PascalVOCDataset():
 
     examples_path = os.path.join(data_dir,'ImageSets','Main','aeroplane_'+ 'train'+'.txt')
     example_list = dataset_utils.read_examples_list(examples_path)
-    for idx, example in enumerate(example_list):
+    newSize = [300,300]
+    images = []
+    labels = []
+    boxes = []
+    difficulties = []
+    for idx, example in tqdm(enumerate(example_list)):
 
         if idx % 100 ==0:
             logging.info('On image %d of %d', idx, len(example_list))
-        path = os.path.join(annotations_dir, example + '.xml')
-        anno = parse_annotation(path)
-        image = np.array(Image.open(anno['filename']))
-        print(anno)
-        print(image)
 
-        break
-if __name__ == '__main__':
-  main()
+        #annotation
+        image_path = os.path.join(annotations_dir, example + '.xml')
+        anno = parse_annotation(image_path)
+        if ifprint:print(anno)
 
+        image = anno['filename']
+        # image read Image.open, cv2
+        #image = np.array(Image.open(anno['filename']))
+        #image = cv2.imread(anno['filename'])
 
-  '''
-#logging.info(path)
-#print(path)
-#with tf.gfile.GFile(path,'r') as fid:
-#    xml_str = fid.read()
-#xml = etree.fromstring(xml_str)
-#data = dataset_utils.recursive_parse_xml_to_dict(xml)['annotation']
+        #scale_x = newSize[0] / image.shape[1]
+        #scale_y = newSize[1] / image.shape[0]
 
-#img = os.path.join(img_path,data['filename'])
-#object = data['object'][0]['name']
-#bndbox = data['object'][0]['bndbox']
+        #image = cv2.resize(image, (newSize[0], newSize[1]))
 
-#print(data,img)
-#print(object,bndbox)
-  
-  
-  '''
+        #boxes
+        box = anno['boxes']
+        label = anno['labels']
+        difficulty = anno['difficulties']
+
+        images.append(image)
+        boxes.append(box)
+        labels.append(label)
+        difficulties.append(difficulties)
+        if ifprint:
+            print(np.array(images).shape)
+            print(np.array(boxes).shape)
+            print(np.array(labels).shape)
+            print(np.array(difficulties).shape)
+        #break
+
+    return images,boxes,labels,difficulties

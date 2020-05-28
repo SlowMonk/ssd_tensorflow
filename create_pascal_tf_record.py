@@ -25,6 +25,7 @@ from object_detection_utils import dataset_utils
 from object_detection_utils import label_map_util
 
 from lxml import etree
+import tqdm
 
 #from object_detection.utils import dataset_util
 #from object_detection.utils import label_map_util
@@ -65,7 +66,7 @@ def main():
     examples_path = os.path.join(data_dir,'ImageSets','Main','aeroplane_'+ 'train'+'.txt')
     example_list = dataset_utils.read_examples_list(examples_path)
     #label_map_dict = label_map_util.get_label_map_dict(label_map_path)
-    for idx, example in enumerate(example_list):
+    for idx, example in tqdm(enumerate(example_list)):
 
         if idx % 100 ==0:
             logging.info('On image %d of %d', idx, len(example_list))
@@ -82,7 +83,7 @@ def main():
         object = data['object'][0]['name']
         bndbox = data['object'][0]['bndbox']
 
-        print(data,img)
+        print(img)
         print(object,bndbox)
 
         break
