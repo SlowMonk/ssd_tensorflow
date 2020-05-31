@@ -68,8 +68,8 @@ def main():
     #label_map_dict = label_map_util.get_label_map_dict(label_map_path)
     for idx, example in tqdm(enumerate(example_list)):
 
-        if idx % 100 ==0:
-            logging.info('On image %d of %d', idx, len(example_list))
+        #if idx % 100 ==0:
+            #logging.info('On image %d of %d', idx, len(example_list))
         path = os.path.join(annotations_dir, example + '.xml')
         logging.info(path)
         print(path)

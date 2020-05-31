@@ -103,8 +103,8 @@ def PascalVOCDataset():
     difficulties = []
     for idx, example in tqdm(enumerate(example_list)):
 
-        if idx % 100 ==0:
-            logging.info('On image %d of %d', idx, len(example_list))
+        #if idx % 100 ==0:
+            #logging.info('On image %d of %d', idx, len(example_list))
 
         #annotation
         image_path = os.path.join(annotations_dir, example + '.xml')

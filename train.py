@@ -5,45 +5,57 @@ import numpy as np
 import tensorflow as tf
 import cv2
 import itertools
+import time
+from  tensorflow.keras import backend as K
 '''
-ds = tf.data.Dataset.from_tensorslice
-ds = ds.map(func)
-ds = ds.batch()
-ds = ds.prefetch()
-/media/jake/mark-4tb3/input/datasets/pascal/VOCtrainval_11-May-2012/VOCdevkit/VOC2012/JPEGImages/2008_000259.jpg
-/media/jake/mark-4tb3/input/datasets/pascal/VOCtrainval_11-May-2012/VOCdevkit/VOC2012/JPEGImages/
 '''
 isprint = True
-def func(images):
-    images = np.array(images)
-    newSize = [300,300]
-    if isprint:print('image_A->',images[0].decode("utf-8"))
-    #print('boxes->',boxes)
 
 
-    image = cv2.imread(images[0].decode("utf-8"))
-    if isprint:print(image.shape)
-    image = np.array(image)
-    if isprint:print('A')
-    scale_x = newSize[0] / image.shape[1]
-    scale_y = newSize[1] / image.shape[0]
-    if isprint:print('B')
-    image = cv2.resize(image, (newSize[0], newSize[1]))
-    if isprint:print('C',image.shape)
-    return tf.convert_to_tensor(image,dtype=tf.uint8)
+
+def resize_image(image,bbox):
+
+    img = tf.io.read_file(image)
+    img = tf.image.decode_jpeg(img, channels=3)
+    img = tf.cast(img, tf.float32)
+    newSize = (300, 300)
+
+    img = tf.image.resize(img,newSize)
+
+    return img,bbox
+def run_train(dataset, num_epochs=2):
+    start_time = time.perf_counter()
+
+    for _ in tf.data.Dataset.range(num_epochs):
+        #for _,__ in dataset:
+        #    print(_,__)
+        #    break
+        #    pass
+        #for _ in dataset:
+        #    print(_)
+        pass
+    tf.print("실행 시간:", time.perf_counter() - start_time)
 
 def train():
     if isprint:print(tf.__version__)
+    batch_size= 256
 
+    #dataset test0
     images,boxes,labels,difficulties= PascalVOCDataset()
+    print('boxes->',boxes)
     boxes = tf.ragged.constant(boxes)
-    dataset = tf.data.Dataset.from_tensor_slices((images,boxes)).shuffle(100).batch(1)
-    dataset = dataset.map(lambda image,box: tf.py_function(func=func, inp = [image],Tout=tf.string))
-    for  i,b in dataset:
-        print(i,b)
-        break
+    print('boxes after->', boxes)
 
+
+    print(type(images),type(boxes))
+
+    dataset = tf.data.Dataset.from_tensor_slices((images,boxes))
+    #function_to_map = lambda x,y: resize_image(x,y)
+    run_train(dataset.map(resize_image, num_parallel_calls=tf.data.experimental.AUTOTUNE).batch(2).prefetch(tf.data.experimental.AUTOTUNE))
+
+#image, bbox = next(iter(dataset))
 def main():
     train()
+
 if __name__ =='__main__':
     main()

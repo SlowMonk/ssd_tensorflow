@@ -1,0 +1,39 @@
+  #dataset test1
+    #dataset = tf.data.Dataset.from_tensor_slices((images,boxes)).shuffle(100).batch(2)
+    #dataset = tf.data.Dataset.from_tensor_slices((images, boxes))
+    #dataset = dataset.map(lambda image,box: tf.py_function(func=func, inp = [image],Tout=tf.string))
+    #tf.float32, numpy function
+
+    #dataset test2
+    #dataset = tf.data.Dataset.from_tensor_slices((images,boxes))
+
+    #dataset test3
+    #fast_benchmark(dataset.map(increment).batch(1000).prefetch(tf.data.experimental.AUTOTUNE))
+    #dataset = tf.data.Dataset.from_generator(
+    #    gen,
+    #    (tf.int64, tf.int64),
+    #    (tf.TensorShape([]), tf.TensorShape([None]))
+    #)
+
+    #dataset test4
+    #dataset = tf.data.Dataset.range(10000)
+    #fast_benchmark(dataset.map(increment).batch(1000).prefetch(tf.data.experimental.AUTOTUNE))
+
+    #dataset test5
+    #X = [x for x in range(100)]
+    #y = [x for x in range(200,300)]
+    #print(type(X),type(y))
+    #dataset = tf.data.Dataset.from_tensor_slices((X,y))
+    #fast_benchmark(dataset.map(increment).batch(10).prefetch(tf.data.experimental.AUTOTUNE))
+
+
+def increment(x,y):
+    return x+1,y
+
+    ds = tf.data.Dataset.from_tensorslice
+ds = ds.map(func)
+ds = ds.batch()
+ds = ds.prefetch()
+/media/jake/mark-4tb3/input/datasets/pascal/VOCtrainval_11-May-2012/VOCdevkit/VOC2012/JPEGImages/2008_000259.jpg
+/media/jake/mark-4tb3/input/datasets/pascal/VOCtrainval_11-May-2012/VOCdevkit/VOC2012/JPEGImages/
+https://www.tensorflow.org/guide/data_performance
