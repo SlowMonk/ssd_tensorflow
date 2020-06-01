@@ -36,4 +36,6 @@ ds = ds.batch()
 ds = ds.prefetch()
 /media/jake/mark-4tb3/input/datasets/pascal/VOCtrainval_11-May-2012/VOCdevkit/VOC2012/JPEGImages/2008_000259.jpg
 /media/jake/mark-4tb3/input/datasets/pascal/VOCtrainval_11-May-2012/VOCdevkit/VOC2012/JPEGImages/
-https://www.tensorflow.org/guide/data_performance
+https://www.tensorflow.org/guide/data_performance]
+
+    #function_to_map = lambda x,y: resize_image(x,y)
