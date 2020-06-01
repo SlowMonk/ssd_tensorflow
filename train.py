@@ -8,7 +8,7 @@ import time
 from Image import *
 from  tensorflow.keras import backend as K
 from create_pascal_dataset import  PascalVOCDataset
-from model import VGGBase,MyModel
+from model import VGGBase,MyModel,SSD
 
 isprint = True
 
@@ -26,30 +26,32 @@ def run_train2(dataset,num_epochs = 2):
     x_train = x_train[..., tf.newaxis]
     x_test = x_test[..., tf.newaxis]
     model = MyModel()
-    print('x_train',type(x_train), 'y_train->',type(y_train))
+    if isprint: print('x_train',type(x_train), 'y_train->',type(y_train))
+    if isprint: print(x_train.shape,y_train.shape)
     for _ in tf.data.Dataset.range(num_epochs):
         for image, target in dataset:  # (batch_size (N), 300, 300, 3)
             # print(type(image), type(x_train))
             predicted_locs = model(image)  # (N, 8732, 4), (N, 8732, n_classes)
-            print(predicted_locs)
+            #print(predicted_locs)
             pass
             break
         pass
     tf.print("실행 시간:", time.perf_counter() - start_time)
 
 
-def run_train(dataset, num_epochs=2):
+def run_train(dataset, num_epochs=1):
     start_time = time.perf_counter()
 
-    model = VGGBase()
+    #model = VGGBase()
+    model = SSD(n_classes=20)
 
     for _ in tf.data.Dataset.range(num_epochs):
         for image,target in dataset: # (batch_size (N), 300, 300, 3)
             image = np.array(image)
             target = np.array(target)
-            print(type(image), type(target),image.shape,target.shape)
+            if isprint: print(type(image), type(target),image.shape,target.shape)
             predicted_locs, predicted_socres = model(image)# (N, 8732, 4), (N, 8732, n_classes)
-            print(predicted_locs,predicted_socres)
+            if isprint: print(predicted_locs.shape,predicted_socres.shape)
             pass
             break
         pass

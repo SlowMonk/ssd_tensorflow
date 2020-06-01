@@ -24,28 +24,28 @@ class  VGGBase(Model):
     def __init__(self):
         super(VGGBase,self).__init__()
         self.padding_1 = tf.keras.layers.ZeroPadding2D(padding=(1, 1))  # put this before your conv layer
-        self.conv1_1 = tf.keras.layers.Conv2D(3, kernel_size=3,padding='same',strides=1, activation='relu'),
-        self.conv1_2 = tf.keras.layers.Conv2D(64, kernel_size=3, padding='same',strides=1,activation='relu'),
-        self.pool1 = tf.keras.layers.MaxPool2D(2,2),
+        self.conv1_1 = tf.keras.layers.Conv2D(3, kernel_size=3,padding='same',strides=1, activation='relu')
+        self.conv1_2 = tf.keras.layers.Conv2D(64, kernel_size=3, padding='same',strides=1,activation='relu')
+        self.pool1 = tf.keras.layers.MaxPool2D(2,2)
 
-        self.conv2_1  =  tf.keras.layers.Conv2D(128, kernel_size=3, padding='same',strides= 1,activation='relu'),
-        self.conv2_2 = tf.keras.layers.Conv2D(128, kernel_size=3,padding='same',strides= 1,activation='relu'),
-        self.pool2 = tf.keras.layers.MaxPool2D(2,2),
+        self.conv2_1  =  tf.keras.layers.Conv2D(128, kernel_size=3, padding='same',strides= 1,activation='relu')
+        self.conv2_2 = tf.keras.layers.Conv2D(128, kernel_size=3,padding='same',strides= 1,activation='relu')
+        self.pool2 = tf.keras.layers.MaxPool2D(2,2)
 
-        self.conv3_1 =  tf.keras.layers.Conv2D(256, kernel_size=3, padding='same',strides= 1,activation='relu'),
-        self.conv3_2 =  tf.keras.layers.Conv2D(256, kernel_size=3, padding='same',strides= 1,activation='relu'),
-        self.conv3_3 =  tf.keras.layers.Conv2D(256, kernel_size=3, padding='same',strides= 1,activation='relu'),
-        self.pool3 = tf.keras.layers.MaxPool2D(2,2),
+        self.conv3_1 =  tf.keras.layers.Conv2D(256, kernel_size=3, padding='same',strides= 1,activation='relu')
+        self.conv3_2 =  tf.keras.layers.Conv2D(256, kernel_size=3, padding='same',strides= 1,activation='relu')
+        self.conv3_3 =  tf.keras.layers.Conv2D(256, kernel_size=3, padding='same',strides= 1,activation='relu')
+        self.pool3 = tf.keras.layers.MaxPool2D(2,2)
 
-        self.conv4_1 = tf.keras.layers.Conv2D(512, kernel_size=3, padding='same', strides=1,activation='relu'),
-        self.conv4_2 = tf.keras.layers.Conv2D(512, kernel_size=3, padding='same', strides=1,activation='relu'),
-        self.conv4_3 = tf.keras.layers.Conv2D(512, kernel_size=3, padding='same', strides=1,activation='relu'),
-        self.pool4 = tf.keras.layers.MaxPool2D(2, 2),
+        self.conv4_1 = tf.keras.layers.Conv2D(512, kernel_size=3, padding='same', strides=1,activation='relu')
+        self.conv4_2 = tf.keras.layers.Conv2D(512, kernel_size=3, padding='same', strides=1,activation='relu')
+        self.conv4_3 = tf.keras.layers.Conv2D(512, kernel_size=3, padding='same', strides=1,activation='relu')
+        self.pool4 = tf.keras.layers.MaxPool2D(2, 2)
 
-        self.conv5_1 = tf.keras.layers.Conv2D(512, kernel_size=3, padding='same', strides=1,activation='relu'),
-        self.conv5_2 = tf.keras.layers.Conv2D(512, kernel_size=3, padding='same', strides=1,activation='relu'),
-        self.conv5_3 = tf.keras.layers.Conv2D(512, kernel_size=3, padding='same', strides=1,activation='relu'),
-        self.pool5 = tf.keras.layers.MaxPool2D(2, 2),
+        self.conv5_1 = tf.keras.layers.Conv2D(512, kernel_size=3, padding='same', strides=1,activation='relu')
+        self.conv5_2 = tf.keras.layers.Conv2D(512, kernel_size=3, padding='same', strides=1,activation='relu')
+        self.conv5_3 = tf.keras.layers.Conv2D(512, kernel_size=3, padding='same', strides=1,activation='relu')
+        self.pool5 = tf.keras.layers.MaxPool2D(2, 2)
 
         self.padding6 = tf.keras.layers.ZeroPadding2D(padding=(6, 6))  # put this before your conv layer
         self.conv6 = tf.keras.layers.Conv2D(1024, kernel_size=3, padding='same',dilation_rate=6,activation='relu') # atrous convolution
@@ -87,9 +87,9 @@ class  VGGBase(Model):
 class AixiliaryConvolutions(Model):
     def __init__(self):
         super(AixiliaryConvolutions,self).__init__()
-        self.conv8_1 = tf.keras.layers.Conv2D(1024,kernel_size=3,padding = 'same',strides = 1, activation='relu'),
+        self.conv8_1 = tf.keras.layers.Conv2D(1024,kernel_size=3,padding = 'same',strides = 1, activation='relu')
         self.padding_8_1 = tf.keras.layers.ZeroPadding2D(padding=(1, 1))  # put this before your conv layer
-        self.conv8_2 = tf.keras.layers.Conv2D(256,kernel_size=3,padding='same',strides = 1, activation='relu'),
+        self.conv8_2 = tf.keras.layers.Conv2D(256,kernel_size=3,padding='same',strides = 1, activation='relu')
 
         self.conv9_1 = tf.keras.layers.Conv2D(512,kernel_size= 1, padding='same')
         self.padding_9_1 = tf.keras.layers.ZeroPadding2D(padding=(1, 1))  # put this before your conv layer
@@ -103,5 +103,41 @@ class AixiliaryConvolutions(Model):
 
         self.init_conv2d()
 
+    def init_conv2d(self):
+        pass
+
+    def call(self,conv7_feats):
+        out = self.conv8_1(conv7_feats)
+        out = self.conv8_2(out)
+        conv8_2_feats = out
+
+        out = self.conv9_1(out)
+        out = self.conv9_2(out)
+        conv9_2_feats = out
+
+        out = self.conv10_1(out)
+        out = self.conv10_2(out)
+        conv10_2_feats = out
+
+        out = self.conv11_1(out)
+        conv11_2_feats =  self.conv11_2(out)
+
+        return conv8_2_feats, conv9_2_feats, conv10_2_feats,conv11_2_feats
 
 
+
+class SSD(Model):
+    def __init__(self,n_classes):
+        super(SSD,self).__init__()
+        self.n_classes = n_classes
+        self.base = VGGBase()
+        self.aux_convs = AixiliaryConvolutions()
+
+    def call(self,image):
+        conv4_3_feats, conv7_feats = self.base(image)  # (N, 512, 38, 38), (N, 1024, 19, 19)
+
+        # Run auxiliary convolutions (higher level feature map generators)
+        conv8_2_feats, conv9_2_feats, conv10_2_feats, conv11_2_feats = \
+            self.aux_convs(conv7_feats)
+
+        return conv4_3_feats,conv7_feats
