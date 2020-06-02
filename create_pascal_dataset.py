@@ -18,7 +18,7 @@ http://solarisailab.com/archives/2603  텐서플로우 tfrecord 파일을 이용
 '''
 
 #import tensorflow as tf
-import tensorflow.compat.v1 as tf
+#import tensorflow.compat.v1 as tf
 from object_detection_utils import dataset_utils
 from object_detection_utils import label_map_util
 import xml.etree.ElementTree as ET

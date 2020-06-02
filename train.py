@@ -64,7 +64,7 @@ def train():
     images,boxes,labels,difficulties= PascalVOCDataset()
     boxes = tf.ragged.constant(boxes)
     dataset = tf.data.Dataset.from_tensor_slices((images,boxes))
-    run_train(dataset.map(resize_image, num_parallel_calls=tf.data.experimental.AUTOTUNE).batch(1).prefetch(tf.data.experimental.AUTOTUNE))
+    run_train(dataset.map(resize_image_bbox, num_parallel_calls=tf.data.experimental.AUTOTUNE).batch(1).prefetch(tf.data.experimental.AUTOTUNE))
 
 def main():
     train()

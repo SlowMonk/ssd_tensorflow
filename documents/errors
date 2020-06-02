@@ -16,7 +16,14 @@ def call(self,x):
     x = self.pool1(x)
 
 [solution]
-
+class  VGGBase(Model):
+    def __init__(self):
+        super(VGGBase,self).__init__()
+        self.padding_1 = tf.keras.layers.ZeroPadding2D(padding=(1, 1))  # put this before your conv layer
+        self.conv1_1 = tf.keras.layers.Conv2D(3, kernel_size=3,padding='same',strides=1, activation='relu')
+        self.conv1_2 = tf.keras.layers.Conv2D(64, kernel_size=3, padding='same',strides=1,activation='relu')
+        self.pool1 = tf.keras.layers.MaxPool2D(2,2)
+모델 conv layer 다음에 , 붙이면 tuple error
 ######################################################################################
 [error]
 File "/home/jake/venv/lib/python3.7/site-packages/tensorflow/python/framework/constant_op.py", line 270, in _constant_impl
@@ -30,4 +37,16 @@ print(type(image), type(target))
 
 [solution]
 boxes = tf.ragged.constant(boxes)
+######################################################################################
+[error]
+
+>>> a = torch.randn(4)
+>>> a
+tensor([ 0.7753, -0.4702, -0.4599,  1.1899])
+>>> torch.clamp(a, max=0.5)
+tensor([ 0.5000, -0.4702, -0.4599,  0.5000])
+
+tensorflow에서 clamp의 function 이 있는지?
+
+[solution]
 ######################################################################################

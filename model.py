@@ -3,7 +3,7 @@ from tensorflow.keras import Model
 from tensorflow.keras.layers import Dense,Flatten,Conv2D
 from tensorflow.keras.activations import relu
 from tensorflow.keras import datasets, layers,optimizers,models
-
+from ssd_utils import *
 #vgg16
 
 class MyModel(Model):
@@ -124,7 +124,16 @@ class AixiliaryConvolutions(Model):
 
         return conv8_2_feats, conv9_2_feats, conv10_2_feats,conv11_2_feats
 
-
+class PredictionConvolutions(Model):
+    def __init__(self,n_classes):
+        super(PredictionConvolutions,self).__init__()
+        self.n_classes = n_classes
+        self.locs
+        self.classes_scores
+    def init_conv2d(self):
+        pass
+    def call(self):
+        return self.locs, self.classes_scores
 
 class SSD(Model):
     def __init__(self,n_classes):
@@ -132,6 +141,9 @@ class SSD(Model):
         self.n_classes = n_classes
         self.base = VGGBase()
         self.aux_convs = AixiliaryConvolutions()
+
+        self.pred_convs = PredictionConvolutions(n_classes)
+        self.priors_cxcy = create_prior_boxes()
 
     def call(self,image):
         conv4_3_feats, conv7_feats = self.base(image)  # (N, 512, 38, 38), (N, 1024, 19, 19)
@@ -141,3 +153,14 @@ class SSD(Model):
             self.aux_convs(conv7_feats)
 
         return conv4_3_feats,conv7_feats
+
+    def detect_object(self,predicted_locs, predicted_scores, min_score,max_overlap, top_k):
+        pass
+
+class MultiBoxLoss(Model):
+    def __init__(self):
+        super(MultiBoxLoss,self).__init__()
+        self.conf_loss
+        self.alpha
+        self.loc_loss
+    pass
