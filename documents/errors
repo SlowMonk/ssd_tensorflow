@@ -50,3 +50,35 @@ tensorflow에서 clamp의 function 이 있는지?
 
 [solution]
 ######################################################################################
+[error]
+
+# Predict localization boxes' bounds (as offsets w.r.t prior-boxes)
+        l_conv4_3 = self.loc_conv4_3(conv4_3_feats)  # (N, 16, 38, 38)
+        l_conv4_3 = l_conv4_3.permute(0, 2, 3,
+                                      1).contiguous()  # (N, 38, 38, 16), to match prior-box order (after .view())
+        # (.contiguous() ensures it is stored in a contiguous chunk of memory, needed for .view() below)
+        l_conv4_3 = l_conv4_3.view(batch_size, -1, 4)  # (N, 5776, 4), there are a total 5776 boxes on this feature map
+File "/home/jake/venv/lib/python3.7/site-packages/tensorflow/python/framework/ops.py", line 6653, in raise_from_not_ok_status
+    six.raise_from(core._status_to_exception(e.code, message), None)
+  File "<string>", line 3, in raise_from
+tensorflow.python.framework.errors_impl.InvalidArgumentError: Shapes of all inputs must match: values[0].shape = [37,37,512] != values[1].shape = [] [Op:Pack]
+
+Process finished with exit code 1
+[solution]
+
+######################################################################################
+[error]
+[solution]
+######################################################################################
+[error]
+[solution]
+######################################################################################
+[error]
+[solution]
+######################################################################################
+[error]
+[solution]
+######################################################################################
+[error]
+[solution]
+######################################################################################

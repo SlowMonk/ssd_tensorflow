@@ -1,0 +1,5 @@
+# Todo
+1. box draw process
+2. full process
+3. self.init_conv2d()  parameter initializtion
+4. pretrained model weight setting

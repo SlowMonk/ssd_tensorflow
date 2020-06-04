@@ -1,4 +1,3 @@
-
 import os
 import numpy as np
 import tensorflow as tf
@@ -47,11 +46,16 @@ def run_train(dataset, num_epochs=1):
 
     for _ in tf.data.Dataset.range(num_epochs):
         for image,target in dataset: # (batch_size (N), 300, 300, 3)
+
             image = np.array(image)
             target = np.array(target)
             if isprint: print(type(image), type(target),image.shape,target.shape)
             predicted_locs, predicted_socres = model(image)# (N, 8732, 4), (N, 8732, n_classes)
-            if isprint: print(predicted_locs.shape,predicted_socres.shape)
+            if isprint:
+                    print('predicted_locs->',predicted_locs.shape)
+                    print('predicted_socres->',predicted_socres.shape)
+
+
             pass
             break
         pass
@@ -59,7 +63,6 @@ def run_train(dataset, num_epochs=1):
 def train():
     if isprint:print(tf.__version__)
     batch_size= 256
-
     #dataset test0
     images,boxes,labels,difficulties= PascalVOCDataset()
     boxes = tf.ragged.constant(boxes)
