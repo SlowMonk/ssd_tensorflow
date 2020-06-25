@@ -1,0 +1,27 @@
+=====================================================================================
+Train.py
+
+def run_train2(dataset,num_epochs = 2):
+    start_time = time.perf_counter()
+
+    mnist = tf.keras.datasets.mnist
+
+    (x_train, y_train), (x_test, y_test) = mnist.load_data()
+    x_train, x_test = x_train / 255.0, x_test / 255.0
+
+    # 채널 차원을 추가합니다.
+    x_train = x_train[..., tf.newaxis]
+    x_test = x_test[..., tf.newaxis]
+    model = MyModel()
+    if isprint: print('x_train',type(x_train), 'y_train->',type(y_train))
+    if isprint: print(x_train.shape,y_train.shape)
+    for _ in tf.data.Dataset.range(num_epochs):
+        for image, target in dataset:  # (batch_size (N), 300, 300, 3)
+            # print(type(image), type(x_train))
+            predicted_locs = model(image)  # (N, 8732, 4), (N, 8732, n_classes)
+            #print(predicted_locs)
+            pass
+            break
+        pass
+    tf.print("실행 시간:", time.perf_counter() - start_time)
+ =====================================================================================

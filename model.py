@@ -5,6 +5,7 @@ from tensorflow.keras.activations import relu
 from tensorflow.keras import datasets, layers,optimizers,models
 from ssd_utils import *
 #vgg16
+from math import sqrt
 
 isprint= False
 class MyModel(Model):
@@ -268,7 +269,7 @@ class SSD(Model):
         self.aux_convs = AixiliaryConvolutions()
 
         self.pred_convs = PredictionConvolutions(n_classes)
-        self.priors_cxcy = create_prior_boxes()
+        self.priors_cxcy = self.create_prior_boxes()
 
     def call(self,image):
         conv4_3_feats, conv7_feats ,conv1_1 = self.base(image)  # (N, 512, 38, 38), (N, 1024, 19, 19)
@@ -280,13 +281,138 @@ class SSD(Model):
         locs, classes_socres = self.pred_convs(conv4_3_feats,conv7_feats,conv8_2_feats,conv9_2_feats,conv10_2_feats,conv11_2_feats,conv1_1)
         return locs, classes_socres
 
+    def create_prior_boxes(self):
+        """
+        Create the 8732 prior (default) boxes for the SSD300, as defined in the paper.
+
+        :return: prior boxes in center-size coordinates, a tensor of dimensions (8732, 4)
+        """
+        fmap_dims = {'conv4_3': 38,
+                     'conv7': 19,
+                     'conv8_2': 10,
+                     'conv9_2': 5,
+                     'conv10_2': 3,
+                     'conv11_2': 1}
+
+        obj_scales = {'conv4_3': 0.1,
+                      'conv7': 0.2,
+                      'conv8_2': 0.375,
+                      'conv9_2': 0.55,
+                      'conv10_2': 0.725,
+                      'conv11_2': 0.9}
+
+        aspect_ratios = {'conv4_3': [1., 2., 0.5],
+                         'conv7': [1., 2., 3., 0.5, .333],
+                         'conv8_2': [1., 2., 3., 0.5, .333],
+                         'conv9_2': [1., 2., 3., 0.5, .333],
+                         'conv10_2': [1., 2., 0.5],
+                         'conv11_2': [1., 2., 0.5]}
+
+        fmaps = list(fmap_dims.keys())
+
+        prior_boxes = []
+
+        for k, fmap in enumerate(fmaps):
+            for i in range(fmap_dims[fmap]):
+                for j in range(fmap_dims[fmap]):
+                    cx = (j + 0.5) / fmap_dims[fmap]
+                    cy = (i + 0.5) / fmap_dims[fmap]
+
+                    for ratio in aspect_ratios[fmap]:
+                        prior_boxes.append([cx, cy, obj_scales[fmap] * sqrt(ratio), obj_scales[fmap] / sqrt(ratio)])
+
+                        # For an aspect ratio of 1, use an additional prior whose scale is the geometric mean of the
+                        # scale of the current feature map and the scale of the next feature map
+                        if ratio == 1.:
+                            try:
+                                additional_scale = sqrt(obj_scales[fmap] * obj_scales[fmaps[k + 1]])
+                            # For the last feature map, there is no "next" feature map
+                            except IndexError:
+                                additional_scale = 1.
+                            prior_boxes.append([cx, cy, additional_scale, additional_scale])
+
+        #prior_boxes = torch.FloatTensor(prior_boxes).to(device)  # (8732, 4)
+        prior_boxes = np.array(prior_boxes)
+        #prior_boxes.clamp_(0, 1)  # (8732, 4)
+
+        return prior_boxes
+
+        return prior_boxes
+
     def detect_object(self,predicted_locs, predicted_scores, min_score,max_overlap, top_k):
+        '''
+        8732 locations and class scores
+        :param predicted_locs: predicted locations boxes  (N,8732,4)
+        :param predicted_scores:(N,8732,n_classes)
+        :param min_score: minimum threshold for a box to be considered a match for a certain class
+        :param max_overlap: maximum overlap two boxes can have so that the one with the lower score is not suppressed via nms
+        :param top_k: if there are a lot of resulting detection across all classes keep only the top k
+        :return:
+        '''
+        batch_size= predicted_locs.size(0)
+        n_priors = self.priors_cxcy.size(0)
+        predicted_scores = tf.keras.activations.softmax(predicted_scores,dim=2) #(N,8732, n_classes)
+
+        # Lists to store final predicted boxes, labels, and scores for all images
+        all_images_boxes = list()
+        all_images_labels = list()
+        all_images_scores = list()
+
+        assert n_priors == predicted_locs.size(1) == predicted_scores.size(1)
+
+        for i in range(batch_size):
+            # Decode object coordinates from the form we regressed predicted boxes to
+            decoded_locs = cxcy_to_xy(predicted_locs[i], self.priors_cxcy) # (8732,4) x_min, y_min, x_max, y_max
+
+            image_boxes = list()
+            image_labels = list()
+            image_scores = list()
+
+            max_scores, best_label = predicted_scores[i].max(dim=1) #8732
+
         pass
 
 class MultiBoxLoss(Model):
-    def __init__(self):
+    '''
+    The multibox loss, a loss function for object detection
+
+    '''
+    def __init__(self,priors_cxcy, threshold=0.5, neg_pos_ratio=3, alpha =1):
         super(MultiBoxLoss,self).__init__()
-        self.conf_loss
-        self.alpha
-        self.loc_loss
-    pass
+        self.prior_cxcy = priors_cxcy
+        self.prior_xy = cxcy_to_xy(priors_cxcy)
+        self.threshold = threshold
+        self.neg_pos_ratio = neg_pos_ratio
+        self.alpha = alpha
+
+    def call(self,predicted_locs, predicted_scores,boxes,labels):
+        """
+          Forward propagation.
+
+          :param predicted_locs: predicted locations/boxes w.r.t the 8732 prior boxes, a tensor of dimensions (N, 8732, 4)
+          :param predicted_scores: class scores for each of the encoded locations/boxes, a tensor of dimensions (N, 8732, n_classes)
+          :param boxes: true  object bounding boxes in boundary coordinates, a list of N tensors
+          :param labels: true object labels, a list of N tensors
+          :return: multibox loss, a scalar
+          """
+        #tf.print('predicted_locs->',self.prior_cxcy.shape)
+        batch_size = predicted_locs.shape[0] #8732
+        n_priors = self.prior_cxcy.shape[0] # bounding boxes in boundary coordinates, a tensor of size (n_boxes, 4)
+        n_classes = predicted_scores.shape[2]# c_classes
+
+        assert   n_priors == predicted_locs.shape[1] == predicted_scores.shape[1]
+
+        true_locs = tf.zeros((batch_size,n_priors,4), dtype = tf.float32) # (N, 8732,4)
+        true_classes = tf.zeros((batch_size,n_priors), dtype=tf.float32) # (N, 8732)
+
+        # For each image
+        for i in range(batch_size):
+
+            n_object =boxes[i].shape[0]
+            print('boxes_model->',boxes[i])
+            print('self.priors_xy->', self.prior_xy)
+
+            overlap = find_jaccard_overlap(boxes[i],self.prior_xy)
+            print('find_jaccard_overlap->',overlap)
+            break
+            overlap_for_each_prior, object_for_each_prior = overlap.max(dim=0)

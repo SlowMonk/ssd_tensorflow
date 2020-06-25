@@ -33,6 +33,8 @@ import numpy as np
 from PIL import Image
 import cv2
 from tqdm import tqdm
+import tensorflow as tf
+
 
 #from object_detection.utils import dataset_util
 #from object_detection.utils import label_map_util
@@ -101,6 +103,7 @@ def PascalVOCDataset():
     labels = []
     boxes = []
     difficulties = []
+    new_boxes= []
     for idx, example in tqdm(enumerate(example_list)):
 
         #if idx % 100 ==0:
@@ -114,15 +117,36 @@ def PascalVOCDataset():
         image = anno['filename']
         # image read Image.open, cv2
         #image = np.array(Image.open(anno['filename']))
-        #image = cv2.imread(anno['filename'])
+        # #print('img_shape->',img_origin.shape)
+
+        #boxes
+        box = anno['boxes']
+        #img_origin = cv2.imread(anno['filename'])
+        #w,h = img_origin.shape[0],img_origin.shape[1]
+        #print('boxes->',box)
+        w,h = 300,300
+        old_dims = [w,h,w,h]
+        #old_dims = tf.expand_dims(old_dims,axis=0,name=None)
+        #print('old_dims->',old_dims)
+        #Tensor to numpy array
+        #new_box = box / old_dims
+        new_box = []
+        for b in box:
+            temp = [x / y for x,y in zip(b,old_dims)]
+            new_box.append(temp)
+
+
+        #box = tf.ragged.constant(box)
+
 
         #scale_x = newSize[0] / image.shape[1]
         #scale_y = newSize[1] / image.shape[0]
 
         #image = cv2.resize(image, (newSize[0], newSize[1]))
 
-        #boxes
-        box = anno['boxes']
+        #print('box->',box,type(box))
+
+        #print('new_box->',box)
         label = anno['labels']
         difficulty = anno['difficulties']
 
@@ -130,6 +154,7 @@ def PascalVOCDataset():
         boxes.append(box)
         labels.append(label)
         difficulties.append(difficulties)
+        new_boxes.append(new_box)
         if ifprint:
             print(np.array(images).shape)
             print(np.array(boxes).shape)
@@ -137,4 +162,4 @@ def PascalVOCDataset():
             print(np.array(difficulties).shape)
         #break
 
-    return images,boxes,labels,difficulties
+    return images,boxes,labels,difficulties,new_boxes

@@ -1,3 +1,5 @@
+   #=======================================================================================
+[question]
   #dataset test1
     #dataset = tf.data.Dataset.from_tensor_slices((images,boxes)).shuffle(100).batch(2)
     #dataset = tf.data.Dataset.from_tensor_slices((images, boxes))
@@ -39,3 +41,21 @@ ds = ds.prefetch()
 https://www.tensorflow.org/guide/data_performance]
 
     #function_to_map = lambda x,y: resize_image(x,y)
+
+[answer]
+ #=======================================================================================
+ [question]
+
+ predicted_scores = tf.keras.activations.softmax(predicted_scores,dim=2) #(N,8732, n_classes)
+[answer]
+
+ #=======================================================================================
+  [question]
+  [answer]
+ #=======================================================================================
+  [question]
+  [answer]
+ #=======================================================================================
+   [question]
+  [answer]
+ #=======================================================================================
