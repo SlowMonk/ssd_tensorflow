@@ -50,23 +50,11 @@ def run_train(dataset, num_epochs=1):
 def train():
     if isprint:print(tf.__version__)
     batch_size= 256
-    #dataset test0
     images,boxes,labels,difficulties,new_boxes= PascalVOCDataset()
     new_boxes = list(new_boxes)
-
-    #print('boxes_train->',boxes)
-    #boxes = tf.ragged.constant(boxes)
-    #labels = tf.ragged.constant(labels)
-    #print(type(boxes))
-    #print(boxes)
     boxes = tf.ragged.constant(boxes)
     labels = tf.ragged.constant(labels)
     new_boxes = tf.ragged.constant(new_boxes)
-
-    #print('value_1->',images[0])
-    #print('boxes->',boxes[0],boxes[0].shape)
-    #print('values_3->',labels[0])
-    #print('new_boses->',list(new_boxes)[0])
     dataset = tf.data.Dataset.from_tensor_slices((images,new_boxes,labels))
     #run_train(dataset.map(resize_image_bbox, num_parallel_calls=tf.data.experimental.AUTOTUNE).batch(1).prefetch(tf.data.experimental.AUTOTUNE))
     run_train(dataset.map(resize_image_bbox, num_parallel_calls=tf.data.experimental.AUTOTUNE).batch(1).prefetch(tf.data.experimental.AUTOTUNE))
